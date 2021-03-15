@@ -7,8 +7,6 @@ import 'package:drop_anchor/model/IndexSource.dart';
 import 'package:drop_anchor/model/ServerSource.dart';
 import 'package:drop_anchor/persist.dart';
 
-
-
 class AppDataSource with ChangeNotifier, DiagnosticableTreeMixin {
   late final List<ServerSource> listServer;
 
@@ -16,7 +14,7 @@ class AppDataSource with ChangeNotifier, DiagnosticableTreeMixin {
       listServerNameConMap = new Map();
   late final Future initState;
   late final PersistData listServerData;
-  late IndexSource BookIndex;
+
 
   AppDataSource() {
     initState = Future(() async {
@@ -31,24 +29,38 @@ class AppDataSource with ChangeNotifier, DiagnosticableTreeMixin {
           LibList.map((e) => ServerSource(e['source'], e['name'], e['port']))
               .toList();
 
-      listServer.forEach((element) => createListServerCont(element));
-      await listServerData.save(jsonEncode(listServer.map((e) => e.toMap()).toList()));
+      listServer.forEach((element) => addListServerCont(element));
+      await this.saveServer();
     });
   }
 
-  Future deleteServer(ServerSource removeServerSource)async{
-    await this.initState;
-    this.listServer.remove(removeServerSource);
-    await listServerData.save(jsonEncode(listServer.map((e) => e.toMap()).toList()));
+  Future saveServer() async {
+    await listServerData
+        .save(jsonEncode(listServer.map((e) => e.toMap()).toList()));
   }
 
-  createListServerCont(ServerSource serverSource) {
+  Future deleteServer(ServerSource removeServerSource) async {
+    await this.initState;
+    this.listServer.remove(removeServerSource);
+    await this.saveServer();
+  }
+
+  Future addServer(String source, String name, int port) async {
+    final newServerSource = ServerSource(source, name, port);
+    this.listServer.add(newServerSource);
+    this.addListServerCont(newServerSource);
+    await this.saveServer();
+  }
+
+  addListServerCont(ServerSource serverSource) {
     final createMap = new Map<String, TextEditingController>();
     final editNameCon = new TextEditingController();
     createMap['editName'] = editNameCon;
     editNameCon.text = serverSource.name;
-    listServerNameConMap[serverSource.source] = createMap;
+    listServerNameConMap[serverSource.token()] = createMap;
   }
+
+
 }
 
 final AppDataSourceElem = new AppDataSource();

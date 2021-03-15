@@ -1,4 +1,6 @@
-class ServerSource {
+import 'package:drop_anchor/model/token.dart';
+
+class ServerSource implements Token {
   String source;
   String name;
   int port;
@@ -9,5 +11,10 @@ class ServerSource {
       "name":name,
       "port":port
     };
+  }
+
+  @override
+  String token() {
+    return '${this.source}-${this.port}';
   }
 }

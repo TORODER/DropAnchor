@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:drop_anchor/tool/TextInputFilter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:drop_anchor/data.dart';
 import 'package:drop_anchor/model/ServerSource.dart';
+import 'package:flutter/services.dart';
 
 class LibIndex extends StatefulWidget {
   @override
@@ -76,7 +81,7 @@ class LibIndexState extends State<LibIndex> {
                 createAutoInput(
                     showEdit: true,
                     textEditingController: AppDataSourceElem
-                        .listServerNameConMap[sourceElem.source]!['editName'],
+                        .listServerNameConMap[sourceElem.token()]!['editName'],
                     textStyle: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -130,27 +135,33 @@ class LibIndexState extends State<LibIndex> {
           Positioned(
             right: 10,
             top: 10,
-            child: PopupMenuButton<Function>(
-              padding: EdgeInsets.all(0),
-              onSelected: (f) {
-                f();
-              },
-              itemBuilder: (BuildContext context) => [
-                PopupMenuItem(
-                  child: Text('删除'),
-                  height: 25,
-                  value: () {
-                    AppDataSourceElem.deleteServer(sourceElem).then(
-                      (value) => setState(() => null),
-                    );
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PopupMenuButton<Function>(
+                  padding: EdgeInsets.all(0),
+                  onSelected: (f) {
+                    f();
                   },
+                  itemBuilder: (BuildContext context) => [
+                    PopupMenuItem(
+                      child: Text('删除'),
+                      height: 25,
+                      value: () {
+                        AppDataSourceElem.deleteServer(sourceElem).then(
+                          (value) => setState(() => null),
+                        );
+                      },
+                    ),
+                  ],
+                  child: Image.asset(
+                    "assets/menu.png",
+                    width: 24,
+                    height: 24,
+                  ),
                 ),
+
               ],
-              child: Image.asset(
-                "assets/menu.png",
-                width: 24,
-                height: 24,
-              ),
             ),
           ),
         ],
@@ -160,6 +171,146 @@ class LibIndexState extends State<LibIndex> {
       margin: EdgeInsets.symmetric(vertical: 10, horizontal: 0),
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(1))),
+    );
+  }
+
+  Widget CreateAddLib() {
+    TextEditingController NameController = TextEditingController();
+    TextEditingController SourceController = TextEditingController();
+    TextEditingController PortController = TextEditingController();
+    Function? updateButtonState;
+    return AlertDialog(
+      actions: [
+        Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FittedBox(
+                child: Row(
+                  children: [
+                    Image.asset(
+                      "assets/blues.png",
+                      height: 40,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "创建库链接",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ],
+                  mainAxisAlignment: MainAxisAlignment.start,
+                ),
+              ),
+              ...[
+                {
+                  "Label": "名字",
+                  "Controller": NameController,
+                  "OnChanged": (String e) {
+                    (updateButtonState ?? () => {})();
+                  },
+                  "KeyboardType": TextInputType.text
+                },
+                {
+                  "Label": "来源",
+                  "Controller": SourceController,
+                  "OnChanged": (String e) {
+                    (updateButtonState ?? () => {})();
+                  },
+                  "KeyboardType": TextInputType.text
+                },
+                {
+                  "Label": "端口",
+                  "Controller": PortController,
+                  "OnChanged": (String e) {
+                    (updateButtonState ?? () => {})();
+                  },
+                  "KeyboardType": TextInputType.number,
+                  "InputFilter": InputNumberFilter
+                },
+              ]
+                  .map((e) => Container(
+                        height: 40,
+                        child: Row(
+                          children: [
+                            Text(e["Label"] as String),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              child: SizedBox(
+                                child: TextField(
+                                  inputFormatters: e["InputFilter"] != null
+                                      ? [e["InputFilter"] as TextInputFormatter]
+                                      : [],
+                                  controller:
+                                      e["Controller"] as TextEditingController,
+                                  keyboardType:
+                                      e["KeyboardType"] as TextInputType,
+                                  onChanged:
+                                      e["OnChanged"] as ValueChanged<String>,
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.fromLTRB(
+                                      5,
+                                      0,
+                                      0,
+                                      20,
+                                    ),
+                                    border: InputBorder.none,
+                                    filled: true,
+                                  ),
+                                ),
+                                height: 30,
+                              ),
+                            )
+                          ],
+                        ),
+                      ))
+                  .toList(),
+              StatefulBuilder(builder: (bc, ns) {
+                updateButtonState = () => ns(() => null);
+                return Container(
+                  width: double.infinity,
+                  height: 45,
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: ElevatedButton(
+                    onPressed: NameController.text.isNotEmpty &&
+                            SourceController.text.isNotEmpty &&
+                            PortController.text.isNotEmpty
+                        ? () {
+                            final name = NameController.text;
+                            final source = SourceController.text;
+                            final port = int.parse(PortController.text);
+                            AppDataSourceElem.addServer(
+                              source,
+                              name,
+                              port,
+                            );
+                            setState(() {});
+                          }
+                        : null,
+                    child: Text("创建"),
+                    style: ButtonStyle(
+                      elevation: MaterialStateProperty.all(0),
+                    ),
+                  ),
+                );
+              })
+            ],
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 8,
+          ),
+        ),
+      ],
     );
   }
 
@@ -184,14 +335,7 @@ class LibIndexState extends State<LibIndex> {
           showDialog(
             context: context,
             builder: (bc) {
-              return AlertDialog(
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(),
-                  ],
-                ),
-              );
+              return CreateAddLib();
             },
           );
         },
