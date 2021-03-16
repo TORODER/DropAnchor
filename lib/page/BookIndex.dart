@@ -1,4 +1,5 @@
 import 'package:drop_anchor/data.dart';
+import 'package:drop_anchor/widget/FreeExpansionPanelList.dart';
 import 'package:flutter/material.dart';
 import 'package:drop_anchor/model/IndexSource.dart';
 import 'package:provider/provider.dart';
@@ -27,41 +28,76 @@ IndexSource goInPath(List<String> startP, IndexSource rootSource) {
   return nowNode;
 }
 
+FreeExpansionPanel indexSourceCreateView(IndexSource indexSource) {
+  switch (indexSource.type) {
+    case 0:
+      return FreeExpansionPanel(
+        backgroundColor: Color.fromRGBO(248, 248, 248, 0.6),
+        canTapOnHeader: true,
+        openStateIcon: Container(),
+        closeStateIcon: Container(),
+        isExpanded: indexSource.isOpenChildList,
+        body: Padding(
+          padding: EdgeInsets.fromLTRB(
+            8,
+            0,
+            0,
+            0,
+          ),
+          child: createLibChild(indexSource.child),
+        ),
+        headerBuilder: (bc, openState) => ListTile(
+          title: Text(
+            indexSource.path,
+            style: TextStyle(fontSize: 16),
+          ),
+          trailing: SizedBox(
+            child: IndexSourceTypeLogo(indexSource.type),
+            width: 35,
+          ),
+        ),
+      );
+    case 1:
+    default:
+      return FreeExpansionPanel(
+        backgroundColor: Color.fromRGBO(248, 248, 248, 0.6),
+        canTapOnHeader: true,
+        openStateIcon: Container(),
+        closeStateIcon: Container(),
+        headerBuilder: (bc, openState) => ListTile(
+          title: Text(
+            indexSource.path,
+            style: TextStyle(fontSize: 16),
+          ),
+          trailing: SizedBox(
+            child: IndexSourceTypeLogo(indexSource.type),
+            width: 35,
+          ),
+        ),
+        body: Container(),
+      );
+  }
+}
+
+createLibChild(List<IndexSource> childData) {
+  return Column(
+    children: [
+      FreeExpansionPanelList(
+        elevation: 0,
+        expansionCallback: (index, openState) {
+          childData[index].isOpenChildList = !openState;
+          AppDataSourceElem.notifyListeners();
+        },
+        expandedHeaderPadding: EdgeInsets.all(0),
+        // physics: BouncingScrollPhysics(),
+        children: childData.map((e) => indexSourceCreateView(e)).toList(),
+      )
+    ],
+  );
+}
+
 class BookIndex extends StatelessWidget {
   BookIndex() {}
-
-  createLibChild(List<IndexSource> childData) {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView(
-            physics: BouncingScrollPhysics(),
-            children: childData
-                .map(
-                  (e) => InkWell(
-                    child: e.createView(),
-                    onTap: () {
-                      switch (e.type) {
-                        case 0:
-                          AppDataSourceElem.showPath.add(e.path);
-                          AppDataSourceElem.nowIndexSource = goInPath(
-                            AppDataSourceElem.showPath,
-                            AppDataSourceElem.useIndexSource!,
-                          );
-                          AppDataSourceElem.notifyListeners();
-                          break;
-                        case 1:
-                          break;
-                      }
-                    },
-                  ),
-                )
-                .toList(),
-          ),
-        )
-      ],
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,29 +107,15 @@ class BookIndex extends StatelessWidget {
       ],
       child: StatefulBuilder(builder: (bc, ns) {
         List<IndexSource> rootChild = [];
-        if (bc.read<AppDataSource>().nowIndexSource != null) {
-          rootChild.addAll(bc.read<AppDataSource>().nowIndexSource!.child);
-        }
-        return Scaffold(
-          appBar: AppBar(
-            title: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-              child: Text("/${bc.watch<AppDataSource>().showPath.join("/")}"),
-              width: double.infinity,
+        if (bc.watch<AppDataSource>().nowIndexSource != null)
+          rootChild.addAll(bc.watch<AppDataSource>().nowIndexSource!.child);
+        return Column(
+          children: [
+            SizedBox(
+              height: 10,
             ),
-            actions: [
-              SizedBox(
-                width: 30,
-                child: Image.asset(
-                  "assets/infoi.png",
-                ),
-              ),
-              const SizedBox(
-                width: 20,
-              ),
-            ],
-          ),
-          body: createLibChild(rootChild),
+            createLibChild(rootChild)
+          ],
         );
       }),
     );

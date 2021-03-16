@@ -8,7 +8,6 @@ import 'ShowMarkDown.dart';
 class IndexFrame extends StatefulWidget {
   List<Widget> showPageList = [
     ShowMarkDown(),
-    BookIndex(),
     LibIndex(),
     Setting(),
   ];
@@ -26,7 +25,7 @@ class IndexFrameState extends SecurityState<IndexFrame>
   late TabController tabController;
 
   IndexFrameState() {
-    tabController = TabController(length: 4, vsync: this);
+    tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -51,19 +50,6 @@ class IndexFrameState extends SecurityState<IndexFrame>
                   height: 2,
                 ),
                 const Text("Show"),
-              ],
-              mainAxisSize: MainAxisSize.min,
-            ),
-            Column(
-              children: [
-                Image.asset(
-                  "./assets/redsb.png",
-                  width: 36,
-                ),
-                const SizedBox(
-                  height: 2,
-                ),
-                const Text("Index"),
               ],
               mainAxisSize: MainAxisSize.min,
             ),
