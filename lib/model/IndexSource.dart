@@ -5,14 +5,14 @@ import 'package:provider/provider.dart';
 
 class IndexSource {
   int type;
-  String path;
+  String name;
   late List<IndexSource> child;
   late bool isOpenChildList = false;
 
-  IndexSource(this.type, this.path, dynamic child) {
+  IndexSource(this.type, this.name, dynamic child) {
     final List<IndexSource> listChild =
         List<Map<String, dynamic>>.from(child ?? [])
-            .map((e) => IndexSource(e["type"], e["path"], e["child"]))
+            .map((e) => IndexSource(e["type"], e["name"], e["child"]))
             .toList();
     this.child = listChild;
   }
@@ -21,7 +21,7 @@ class IndexSource {
     final IndexMap = Map<String, dynamic>.from(indexRaw);
     return IndexSource(
       IndexMap["type"],
-      IndexMap["path"],
+      IndexMap["name"],
       IndexMap["child"] ?? [],
     );
   }

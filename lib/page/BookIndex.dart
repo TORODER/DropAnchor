@@ -13,13 +13,13 @@ IndexSource goInPath(List<String> startP, IndexSource rootSource) {
   }
   for (int i = 0; i < goPathList.length; i++) {
     for (int ii = 0; ii < nowNode.child.length; ii++) {
-      if (nowNode.child[ii].path == goPathList[i]) {
+      if (nowNode.child[ii].name == goPathList[i]) {
         nowNode = nowNode.child[ii];
         break;
       }
       if (ii == nowNode.child.length) {
         print(
-          'no find ${goPathList.join('/')}\nnow path ${goPathList.sublist(0, i).join('/')}',
+          'no find ${goPathList.join('/')}\nnow name ${goPathList.sublist(0, i).join('/')}',
         );
         return nowNode;
       }
@@ -48,7 +48,7 @@ FreeExpansionPanel indexSourceCreateView(IndexSource indexSource) {
         ),
         headerBuilder: (bc, openState) => ListTile(
           title: Text(
-            indexSource.path,
+            indexSource.name,
             style: TextStyle(fontSize: 16),
           ),
           trailing: SizedBox(
@@ -66,7 +66,7 @@ FreeExpansionPanel indexSourceCreateView(IndexSource indexSource) {
         closeStateIcon: Container(),
         headerBuilder: (bc, openState) => ListTile(
           title: Text(
-            indexSource.path,
+            indexSource.name,
             style: TextStyle(fontSize: 16),
           ),
           trailing: SizedBox(
@@ -86,7 +86,7 @@ createLibChild(List<IndexSource> childData) {
         elevation: 0,
         expansionCallback: (index, openState) {
           childData[index].isOpenChildList = !openState;
-          AppDataSourceElem.notifyListeners();
+          AppDataSource.getOnlyExist.notifyListeners();
         },
         expandedHeaderPadding: EdgeInsets.all(0),
         // physics: BouncingScrollPhysics(),
@@ -103,7 +103,7 @@ class BookIndex extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: AppDataSourceElem),
+        ChangeNotifierProvider.value(value: AppDataSource.getOnlyExist),
       ],
       child: StatefulBuilder(builder: (bc, ns) {
         List<IndexSource> rootChild = [];

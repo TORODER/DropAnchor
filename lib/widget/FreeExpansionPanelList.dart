@@ -48,31 +48,18 @@ class FreeExpansionPanel {
         assert(isExpanded != null),
         assert(canTapOnHeader != null);
 
-  /// The widget builder that builds the expansion panels' header.
   final ExpansionPanelHeaderBuilder headerBuilder;
 
   final Widget? openStateIcon;
 
   final Widget? closeStateIcon;
 
-  /// The body of the expansion panel that's displayed below the header.
-  ///
-  /// This widget is visible only when the panel is expanded.
   final Widget body;
 
-  /// Whether the panel is expanded.
-  ///
-  /// Defaults to false.
   final bool isExpanded;
 
-  /// Whether tapping on the panel's header will expand/collapse it.
-  ///
-  /// Defaults to false.
   final bool canTapOnHeader;
 
-  /// Defines the background color of the panel.
-  ///
-  /// Defaults to [ThemeData.cardColor].
   final Color? backgroundColor;
 }
 
@@ -123,14 +110,11 @@ class FreeExpansionPanelList extends StatefulWidget {
         _allowOnlyOnePanelOpen = true,
         super(key: key);
 
-  /// The children of the expansion panel list. They are laid out in a similar
-  /// fashion to [ListBody].
   final List<FreeExpansionPanel> children;
 
   //FreeExpansionPanel
   final ExpansionPanelCallback? expansionCallback;
 
-  /// The duration of the expansion animation.
   final Duration animationDuration;
 
   // Whether multiple panels can be open simultaneously

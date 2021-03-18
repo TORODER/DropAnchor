@@ -72,6 +72,7 @@ class LibIndexState extends SecurityState<LibIndex> {
   }
 
   Widget createLibCard(ServerSource sourceElem, AppDataSource appDataSource) {
+    final AppDataSourceElem=AppDataSource.getOnlyExist;
     return Container(
       child: Material(
         color: Colors.white,
@@ -305,7 +306,7 @@ class LibIndexState extends SecurityState<LibIndex> {
                             final name = NameController.text;
                             final source = SourceController.text;
                             final port = int.parse(PortController.text);
-                            AppDataSourceElem.addServer(
+                            AppDataSource.getOnlyExist.addServer(
                               source,
                               name,
                               port,
@@ -340,9 +341,9 @@ class LibIndexState extends SecurityState<LibIndex> {
         physics: BouncingScrollPhysics(),
         padding: EdgeInsets.fromLTRB(12, 10, 12, 0),
         children: [
-          ...AppDataSourceElem.listServer
+          ...AppDataSource.getOnlyExist.listServer
               .map(
-                (e) => createLibCard(e, AppDataSourceElem),
+                (e) => createLibCard(e, AppDataSource.getOnlyExist),
               )
               .toList()
         ],
@@ -364,7 +365,7 @@ class LibIndexState extends SecurityState<LibIndex> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: AppDataSourceElem.initState,
+      future: AppDataSource.getOnlyExist.initState,
       builder: (bc, nowState) {
         if (nowState.hasError) {
           return Center(
