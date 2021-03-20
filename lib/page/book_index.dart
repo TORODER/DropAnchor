@@ -1,7 +1,7 @@
-import 'package:drop_anchor/data.dart';
-import 'package:drop_anchor/widget/FreeExpansionPanelList.dart';
+import 'package:drop_anchor/state/data.dart';
+import 'package:drop_anchor/widget/free_expansion_panel_list.dart';
 import 'package:flutter/material.dart';
-import 'package:drop_anchor/model/IndexSource.dart';
+import 'package:drop_anchor/model/index_source.dart';
 import 'package:provider/provider.dart';
 
 IndexSource goInPath(List<String> startP, IndexSource rootSource) {
@@ -11,8 +11,8 @@ IndexSource goInPath(List<String> startP, IndexSource rootSource) {
     goPathList.removeLast();
     goPathList.removeLast();
   }
-  for (int i = 0; i < goPathList.length; i++) {
-    for (int ii = 0; ii < nowNode.child.length; ii++) {
+  for (var i = 0; i < goPathList.length; i++) {
+    for (var ii = 0; ii < nowNode.child.length; ii++) {
       if (nowNode.child[ii].name == goPathList[i]) {
         nowNode = nowNode.child[ii];
         break;
@@ -52,7 +52,7 @@ FreeExpansionPanel indexSourceCreateView(IndexSource indexSource) {
             style: TextStyle(fontSize: 16),
           ),
           trailing: SizedBox(
-            child: IndexSourceTypeLogo(indexSource.type),
+            child: indexSourceTypeLogo(indexSource.type),
             width: 35,
           ),
         ),
@@ -70,7 +70,7 @@ FreeExpansionPanel indexSourceCreateView(IndexSource indexSource) {
             style: TextStyle(fontSize: 16),
           ),
           trailing: SizedBox(
-            child: IndexSourceTypeLogo(indexSource.type),
+            child: indexSourceTypeLogo(indexSource.type),
             width: 35,
           ),
         ),
@@ -79,7 +79,7 @@ FreeExpansionPanel indexSourceCreateView(IndexSource indexSource) {
   }
 }
 
-createLibChild(List<IndexSource> childData) {
+Widget createLibChild(List<IndexSource> childData) {
   return Column(
     children: [
       FreeExpansionPanelList(
@@ -90,14 +90,14 @@ createLibChild(List<IndexSource> childData) {
         },
         expandedHeaderPadding: EdgeInsets.all(0),
         // physics: BouncingScrollPhysics(),
-        children: childData.map((e) => indexSourceCreateView(e)).toList(),
+        children: childData.map(indexSourceCreateView).toList(),
       )
     ],
   );
 }
 
 class BookIndex extends StatelessWidget {
-  BookIndex() {}
+  BookIndex();
 
   @override
   Widget build(BuildContext context) {
@@ -106,9 +106,10 @@ class BookIndex extends StatelessWidget {
         ChangeNotifierProvider.value(value: AppDataSource.getOnlyExist),
       ],
       child: StatefulBuilder(builder: (bc, ns) {
-        List<IndexSource> rootChild = [];
-        if (bc.watch<AppDataSource>().nowIndexSource != null)
-          rootChild.addAll(bc.watch<AppDataSource>().nowIndexSource!.child);
+        var rootChild = <IndexSource>[];
+        if (bc.watch<AppDataSource>().selectIndexSourceManage.nowIndexSource != null) {
+          rootChild.addAll(bc.watch<AppDataSource>().selectIndexSourceManage.nowIndexSource!.child);
+        }
         return Column(
           children: [
             SizedBox(

@@ -1,23 +1,21 @@
-import 'package:dio/dio.dart';
-import 'package:drop_anchor/page/BookIndex.dart';
-import 'package:drop_anchor/tool/SecuritySetState.dart';
+import 'package:drop_anchor/tool/security_set_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../data.dart';
+
 import '../mddata.dart';
-import 'Edit.dart';
+import 'book_index.dart';
+import 'edit.dart';
 
 class ShowMarkDown extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return ShowMarkDownState();
+    return _ShowMarkDownState();
   }
 }
 
-class ShowMarkDownState extends SecurityState<ShowMarkDown> {
+class _ShowMarkDownState extends SecurityState<ShowMarkDown> {
   Widget createDrawer() {
     return Container(
       color: Colors.white,
@@ -94,7 +92,7 @@ class ShowMarkDownState extends SecurityState<ShowMarkDown> {
         data: v1mdstr,
         selectable: true,
         physics: BouncingScrollPhysics(),
-        onTapLink: (String text, String? href, String title) {
+        onTapLink: (text, href, title) {
           if (href != null) {
             launch(href);
           }

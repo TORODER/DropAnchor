@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:drop_anchor/tool/SecuritySetState.dart';
-import 'BookIndex.dart';
-import 'LibIndex.dart';
-import 'Setting.dart';
-import 'ShowMarkDown.dart';
+import 'package:drop_anchor/tool/security_set_state.dart';
+import 'lib_index.dart';
+import 'setting.dart';
+import 'show_mark_down.dart';
 
 class IndexFrame extends StatefulWidget {
-  List<Widget> showPageList = [
+  final List<Widget> showPageList = [
     ShowMarkDown(),
     LibIndex(),
     Setting(),
   ];
 
-  IndexFrame() {}
+  IndexFrame();
 
   @override
   State<StatefulWidget> createState() {
@@ -33,7 +32,7 @@ class IndexFrameState extends SecurityState<IndexFrame>
     return Scaffold(
         body: TabBarView(
           controller: tabController,
-          children: this.widget.showPageList,
+          children: widget.showPageList,
         ),
         bottomNavigationBar: TabBar(
           labelColor: Colors.black,

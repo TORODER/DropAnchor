@@ -623,7 +623,7 @@ class FreeEditableTextState extends EditableTextState {
       return;
     }
     _showCaretOnScreenScheduled = true;
-    SchedulerBinding.instance!.addPostFrameCallback((Duration _) {
+    SchedulerBinding.instance!.addPostFrameCallback((_) {
       _showCaretOnScreenScheduled = false;
       if (_currentCaretRect == null || !_scrollController!.hasClients) {
         return;
@@ -695,7 +695,7 @@ class FreeEditableTextState extends EditableTextState {
     if (textChanged) {
       value = widget.inputFormatters?.fold<TextEditingValue>(
             value,
-            (TextEditingValue newValue, TextInputFormatter formatter) =>
+            (newValue, formatter) =>
                 formatter.formatEditUpdate(_value, newValue),
           ) ??
           value;
@@ -1025,7 +1025,7 @@ class FreeEditableTextState extends EditableTextState {
         physics: widget.scrollPhysics,
         dragStartBehavior: widget.dragStartBehavior,
         restorationId: widget.restorationId,
-        viewportBuilder: (BuildContext context, ViewportOffset offset) {
+        viewportBuilder: (context, offset) {
           return Row(
             children: [
               Column(

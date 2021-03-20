@@ -115,7 +115,7 @@ Flame's `BaseGame` class provides a method called `debugMode`, which by default 
 To see more about debugMode on Flame, please refer to the [Debug Docs](https://github.com/flame-engine/flame/tree/master/doc/debug.md)
 """;
 
-final bookPathData="""{"type":0,"path":"/","child":[{"type":1,"path":"你好世界","child":null},{"type":0,"path":"2020-10-12Doc","child":[{"type":1,"path":"2020-10-12DocFile","child":null}]},{"type":0,"path":"2020-10-13Doc","child":[{"type":1,"path":"2020-10-13DocFile","child":null}]},{"type":0,"path":"2020-10-14Doc","child":[{"type":1,"path":"2020-10-14DocFile","child":null}]}]}""";
+final bookPathData="""{"type":0,"name":"/","child":[{"type":1,"name":"你好世界","child":null},{"type":0,"name":"2020-10-12Doc","child":[{"type":1,"name":"2020-10-12DocFile","child":null}]},{"type":0,"name":"2020-10-13Doc","child":[{"type":1,"name":"2020-10-13DocFile","child":null}]},{"type":0,"name":"2020-10-14Doc","child":[{"type":1,"name":"2020-10-14DocFile","child":null}]}]}""";
 
 
 final mackUrl = "https://2fcf92c9-4765-4b13-8039-335adcd58c98.mock.pstmn.io";

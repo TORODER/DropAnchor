@@ -64,6 +64,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.0-beta7"
+  effective_dart:
+    dependency: "direct main"
+    description:
+      name: effective_dart
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.3.1"
   fake_async:
     dependency: transitive
     description:

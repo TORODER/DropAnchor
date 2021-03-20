@@ -43,10 +43,11 @@ class FreeExpansionPanel {
     this.backgroundColor,
     this.openStateIcon,
     this.closeStateIcon,
-  })  : assert(headerBuilder != null),
-        assert(body != null),
+  })  : assert(body != null),
         assert(isExpanded != null),
         assert(canTapOnHeader != null);
+
+
 
   final ExpansionPanelHeaderBuilder headerBuilder;
 
@@ -156,8 +157,6 @@ class _FreeExpansionPanelListState extends State<FreeExpansionPanelList> {
     if (widget._allowOnlyOnePanelOpen) {
       assert(_allIdentifiersUnique(),
           'All ExpansionPanelRadio identifier values must be unique.');
-      // If the previous widget was non-radio FreeExpansionPanelList, initialize the
-      // open panel to widget.initialOpenPanelValue
       if (!oldWidget._allowOnlyOnePanelOpen) {
         _currentOpenPanel = searchPanelByValue(
             widget.children.cast<ExpansionPanelRadio>(),

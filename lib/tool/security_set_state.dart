@@ -8,18 +8,20 @@ class SecurityState<T extends StatefulWidget > extends State<T>{
   }
 
   @override
-  void setState(v){
-    if(this.mounted) v();
+  void setState(Function v){
+    if(mounted) {
+      super.setState(() {
+        v();
+      });
+    }
   }
-
 }
 
 class SecurityStatefulBuilder extends StatefulWidget {
   const SecurityStatefulBuilder({
     Key? key,
     required this.builder,
-  }) : assert(builder != null),
-        super(key: key);
+  }) :super(key: key);
   final StatefulWidgetBuilder builder;
   @override
   _SecurityStatefulBuilderState createState() => _SecurityStatefulBuilderState();

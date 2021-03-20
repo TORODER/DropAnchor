@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
 import 'dart:ui' as ui show BoxHeightStyle, BoxWidthStyle;
 
 import 'package:flutter/cupertino.dart';
@@ -13,7 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 
-import 'FreeEditableTextState.dart';
+import 'free_editable_text_state.dart';
 
 export 'package:flutter/services.dart'
     show
@@ -323,7 +322,8 @@ class FreeTextField extends StatefulWidget {
     this.scrollPhysics,
     this.autofillHints,
     this.restorationId,
-  })  : assert(textAlign != null),
+  })  :
+        assert(textAlign != null),
         assert(readOnly != null),
         assert(autofocus != null),
         assert(obscuringCharacter != null && obscuringCharacter.length == 1),
@@ -1019,7 +1019,7 @@ class _FreeTextFieldState extends State<FreeTextField>
     if (widget.decoration != null) {
       child = AnimatedBuilder(
         animation: Listenable.merge(<Listenable>[focusNode, controller]),
-        builder: (BuildContext context, Widget? child) {
+        builder: (context, child) {
           return InputDecorator(
             decoration: _getEffectiveDecoration(),
             baseStyle: widget.style,
@@ -1047,6 +1047,7 @@ class _FreeTextFieldState extends State<FreeTextField>
     );
 
     final int? semanticsMaxValueLength;
+    // ignore: deprecated_member_use_from_same_package
     if (widget.maxLengthEnforced &&
         _effectiveMaxLengthEnforcement != MaxLengthEnforcement.none &&
         widget.maxLength != null &&
@@ -1058,13 +1059,13 @@ class _FreeTextFieldState extends State<FreeTextField>
 
     child = MouseRegion(
       cursor: effectiveMouseCursor,
-      onEnter: (PointerEnterEvent event) => _handleHover(true),
-      onExit: (PointerExitEvent event) => _handleHover(false),
+      onEnter: (event) => _handleHover(true),
+      onExit: (event) => _handleHover(false),
       child: IgnorePointer(
         ignoring: !_isEnabled,
         child: AnimatedBuilder(
           animation: controller, // changes the _currentLength
-          builder: (BuildContext context, Widget? child) {
+          builder: (context, Widget? child) {
             return Semantics(
               maxValueLength: semanticsMaxValueLength,
               currentValueLength: _currentLength,

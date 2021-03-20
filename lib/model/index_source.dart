@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class IndexSource {
   int type;
@@ -10,7 +8,7 @@ class IndexSource {
   late bool isOpenChildList = false;
 
   IndexSource(this.type, this.name, dynamic child) {
-    final List<IndexSource> listChild =
+    final listChild =
         List<Map<String, dynamic>>.from(child ?? [])
             .map((e) => IndexSource(e["type"], e["name"], e["child"]))
             .toList();
@@ -18,16 +16,16 @@ class IndexSource {
   }
 
   static IndexSource createIndexSource(dynamic indexRaw) {
-    final IndexMap = Map<String, dynamic>.from(indexRaw);
+    final indexMap = Map<String, dynamic>.from(indexRaw);
     return IndexSource(
-      IndexMap["type"],
-      IndexMap["name"],
-      IndexMap["child"] ?? [],
+      indexMap["type"],
+      indexMap["name"],
+      indexMap["child"] ?? [],
     );
   }
 }
 
-Widget IndexSourceTypeLogo(int type) {
+Widget indexSourceTypeLogo(int type) {
   switch (type) {
     case 0:
       return Image.asset("assets/blueg.png");

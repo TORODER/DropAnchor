@@ -1,11 +1,10 @@
-import 'dart:convert';
 
-import 'package:drop_anchor/tool/SecuritySetState.dart';
-import 'package:drop_anchor/tool/TextInputFilter.dart';
+import 'package:drop_anchor/tool/security_set_state.dart';
+import 'package:drop_anchor/tool/text_input_filter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:drop_anchor/data.dart';
-import 'package:drop_anchor/model/ServerSource.dart';
+import 'package:drop_anchor/state/data.dart';
+import 'package:drop_anchor/model/server_source.dart';
 import 'package:flutter/services.dart';
 
 class LibIndex extends StatefulWidget {
@@ -72,13 +71,12 @@ class LibIndexState extends SecurityState<LibIndex> {
   }
 
   Widget createLibCard(ServerSource sourceElem, AppDataSource appDataSource) {
-    final AppDataSourceElem=AppDataSource.getOnlyExist;
+    final appDataSourceElem = AppDataSource.getOnlyExist;
     return Container(
       child: Material(
         color: Colors.white,
         child: InkWell(
-          onLongPress: () {
-          },
+          onLongPress: () {},
           child: Card(
             elevation: 0,
             color: Colors.transparent,
@@ -90,9 +88,9 @@ class LibIndexState extends SecurityState<LibIndex> {
                     children: [
                       createAutoInput(
                         showEdit: true,
-                        textEditingController:
-                            AppDataSourceElem.listServerNameConMap[
-                                sourceElem.token()]!['editName'],
+                        textEditingController: appDataSourceElem
+                                .manageRemoteServer.listServerNameConMap[
+                            sourceElem.token()]!['editName'],
                         textStyle: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -100,7 +98,7 @@ class LibIndexState extends SecurityState<LibIndex> {
                       ),
                       createAutoInput(
                         textEditingController: TextEditingController(
-                            text: '源: ' + sourceElem.source),
+                            text: '源: ${sourceElem.source}'),
                         textStyle: TextStyle(
                           fontSize: 14,
                           color: Colors.black54,
@@ -160,14 +158,16 @@ class LibIndexState extends SecurityState<LibIndex> {
                         onSelected: (f) {
                           f();
                         },
-                        itemBuilder: (BuildContext context) => [
+                        itemBuilder: (context) => [
                           PopupMenuItem(
                             child: Text('删除'),
                             height: 25,
                             value: () {
-                              AppDataSourceElem.deleteServer(sourceElem).then(
-                                (value) => setState(() => null),
-                              );
+                              appDataSourceElem.manageRemoteServer
+                                  .deleteServer(sourceElem)
+                                  .then(
+                                    (value) => setState(() => null),
+                                  );
                             },
                           ),
                         ],
@@ -192,10 +192,10 @@ class LibIndexState extends SecurityState<LibIndex> {
     );
   }
 
-  Widget CreateAddLib() {
-    TextEditingController NameController = TextEditingController();
-    TextEditingController SourceController = TextEditingController();
-    TextEditingController PortController = TextEditingController();
+  Widget createAddLib() {
+    var nameController = TextEditingController();
+    var sourceController = TextEditingController();
+    var portController = TextEditingController();
     Function? updateButtonState;
     return AlertDialog(
       actions: [
@@ -230,28 +230,30 @@ class LibIndexState extends SecurityState<LibIndex> {
               ...[
                 {
                   "Label": "名字",
-                  "Controller": NameController,
-                  "OnChanged": (String e) {
+                  "Controller": nameController,
+                  "OnChanged": (e) {
+                    print(updateButtonState);
                     (updateButtonState ?? () => {})();
                   },
                   "KeyboardType": TextInputType.text
                 },
                 {
                   "Label": "来源",
-                  "Controller": SourceController,
-                  "OnChanged": (String e) {
+                  "Controller": sourceController,
+                  "OnChanged": (e) {
+                    print(updateButtonState);
                     (updateButtonState ?? () => {})();
                   },
                   "KeyboardType": TextInputType.text
                 },
                 {
                   "Label": "端口",
-                  "Controller": PortController,
-                  "OnChanged": (String e) {
+                  "Controller": portController,
+                  "OnChanged": (e) {
                     (updateButtonState ?? () => {})();
                   },
                   "KeyboardType": TextInputType.number,
-                  "InputFilter": InputNumberFilter
+                  "InputFilter": inputNumberFilter
                 },
               ]
                   .map((e) => Container(
@@ -294,19 +296,20 @@ class LibIndexState extends SecurityState<LibIndex> {
                   .toList(),
               SecurityStatefulBuilder(builder: (bc, ns) {
                 updateButtonState = () => ns(() => null);
+                print("up!");
                 return Container(
                   width: double.infinity,
                   height: 45,
                   padding: EdgeInsets.symmetric(vertical: 8),
                   child: ElevatedButton(
-                    onPressed: NameController.text.isNotEmpty &&
-                            SourceController.text.isNotEmpty &&
-                            PortController.text.isNotEmpty
+                    onPressed: nameController.text.isNotEmpty &&
+                            sourceController.text.isNotEmpty &&
+                            portController.text.isNotEmpty
                         ? () {
-                            final name = NameController.text;
-                            final source = SourceController.text;
-                            final port = int.parse(PortController.text);
-                            AppDataSource.getOnlyExist.addServer(
+                            final name = nameController.text;
+                            final source = sourceController.text;
+                            final port = int.parse(portController.text);
+                            AppDataSource.getOnlyExist.manageRemoteServer.addServer(
                               source,
                               name,
                               port,
@@ -341,7 +344,7 @@ class LibIndexState extends SecurityState<LibIndex> {
         physics: BouncingScrollPhysics(),
         padding: EdgeInsets.fromLTRB(12, 10, 12, 0),
         children: [
-          ...AppDataSource.getOnlyExist.listServer
+          ...AppDataSource.getOnlyExist.manageRemoteServer.listServer
               .map(
                 (e) => createLibCard(e, AppDataSource.getOnlyExist),
               )
@@ -353,7 +356,7 @@ class LibIndexState extends SecurityState<LibIndex> {
           showDialog(
             context: context,
             builder: (bc) {
-              return CreateAddLib();
+              return createAddLib();
             },
           );
         },

@@ -4,7 +4,7 @@ class ServerSource implements Token {
   String source;
   String name;
   int port;
-  ServerSource(this.source,this.name,this.port);
+  ServerSource(this.name,this.source,this.port);
   Map<String,dynamic> toMap(){
     return {
       "source":source,
@@ -15,6 +15,9 @@ class ServerSource implements Token {
 
   @override
   String token() {
-    return '${this.source}-${this.port}';
+    return '$source-$port';
   }
+  String getUrl()=> "http://$source:$port";
+
+
 }
