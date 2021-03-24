@@ -1,4 +1,4 @@
-
+import 'package:drop_anchor/page/book_index.dart';
 import 'package:drop_anchor/tool/security_set_state.dart';
 import 'package:drop_anchor/tool/text_input_filter.dart';
 import 'package:flutter/cupertino.dart';
@@ -71,7 +71,6 @@ class LibIndexState extends SecurityState<LibIndex> {
   }
 
   Widget createLibCard(ServerSource sourceElem, AppDataSource appDataSource) {
-    final appDataSourceElem = AppDataSource.getOnlyExist;
     return Container(
       child: Material(
         color: Colors.white,
@@ -88,7 +87,7 @@ class LibIndexState extends SecurityState<LibIndex> {
                     children: [
                       createAutoInput(
                         showEdit: true,
-                        textEditingController: appDataSourceElem
+                        textEditingController: appDataSource
                                 .manageRemoteServer.listServerNameConMap[
                             sourceElem.token()]!['editName'],
                         textStyle: TextStyle(
@@ -119,22 +118,94 @@ class LibIndexState extends SecurityState<LibIndex> {
                           ),
                         ),
                         child: FittedBox(
-                          child: SizedBox(
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              child: Text('查询'),
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(1),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() => appDataSource
+                                            .activationIndexSourceManage
+                                            .fromRemoteServer(sourceElem)
+                                            .then((value) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (bc) => AlertDialog(
+                                              contentPadding: EdgeInsets.all(8),
+                                              content: SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.6,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.6,
+                                                child: Container(
+                                                  child: BookIndex(),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }));
+                                  },
+                                  child: Text('查询'),
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(1),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 0,
+                                      vertical: 0,
+                                    ),
+                                  ),
                                 ),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 0,
-                                ),
+                                height: 30,
+                                width: 100,
                               ),
-                            ),
-                            height: 30,
-                            width: 100,
+                              (appDataSource.activationIndexSourceManage
+                                              .serverSource) ==
+                                          sourceElem &&
+                                      (appDataSource.activationIndexSourceManage
+                                              .activationLoad) !=
+                                          null
+                                  ? Container(
+                                      margin: EdgeInsets.fromLTRB(
+                                        4,
+                                        0,
+                                        0,
+                                        0,
+                                      ),
+                                      child: FutureBuilder(
+                                        future: appDataSource
+                                            .activationIndexSourceManage
+                                            .activationLoad,
+                                        builder: (bc, futureState) {
+                                          if (futureState.hasError) {
+                                            print(futureState.error);
+                                            return Icon(
+                                              Icons.close,
+                                              color: Colors.red,
+                                            );
+                                          }
+                                          if (futureState.connectionState !=
+                                              ConnectionState.done) {
+                                            return SizedBox(
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            );
+                                          }
+                                          return Icon(
+                                            Icons.check,
+                                            color: Colors.green,
+                                          );
+                                        },
+                                      ),
+                                      width: 20.5,
+                                      height: 20,
+                                    )
+                                  : Container(),
+                            ],
                           ),
                         ),
                       )
@@ -163,7 +234,7 @@ class LibIndexState extends SecurityState<LibIndex> {
                             child: Text('删除'),
                             height: 25,
                             value: () {
-                              appDataSourceElem.manageRemoteServer
+                              appDataSource.manageRemoteServer
                                   .deleteServer(sourceElem)
                                   .then(
                                     (value) => setState(() => null),
@@ -192,7 +263,7 @@ class LibIndexState extends SecurityState<LibIndex> {
     );
   }
 
-  Widget createAddLib() {
+  Widget createAddLib(AppDataSource appDataSource) {
     var nameController = TextEditingController();
     var sourceController = TextEditingController();
     var portController = TextEditingController();
@@ -296,7 +367,6 @@ class LibIndexState extends SecurityState<LibIndex> {
                   .toList(),
               SecurityStatefulBuilder(builder: (bc, ns) {
                 updateButtonState = () => ns(() => null);
-                print("up!");
                 return Container(
                   width: double.infinity,
                   height: 45,
@@ -309,12 +379,13 @@ class LibIndexState extends SecurityState<LibIndex> {
                             final name = nameController.text;
                             final source = sourceController.text;
                             final port = int.parse(portController.text);
-                            AppDataSource.getOnlyExist.manageRemoteServer.addServer(
-                              source,
+                            appDataSource.manageRemoteServer.addServer(
                               name,
+                              source,
                               port,
                             );
                             setState(() {});
+                            Navigator.pop(context);
                           }
                         : null,
                     child: Text("创建"),
@@ -335,7 +406,7 @@ class LibIndexState extends SecurityState<LibIndex> {
     );
   }
 
-  Widget showMainView() {
+  Widget showMainView(AppDataSource appDataSource) {
     return Scaffold(
       appBar: AppBar(
         title: Text("文库"),
@@ -344,9 +415,9 @@ class LibIndexState extends SecurityState<LibIndex> {
         physics: BouncingScrollPhysics(),
         padding: EdgeInsets.fromLTRB(12, 10, 12, 0),
         children: [
-          ...AppDataSource.getOnlyExist.manageRemoteServer.listServer
+          ...appDataSource.manageRemoteServer.listServer
               .map(
-                (e) => createLibCard(e, AppDataSource.getOnlyExist),
+                (e) => createLibCard(e, appDataSource),
               )
               .toList()
         ],
@@ -356,7 +427,7 @@ class LibIndexState extends SecurityState<LibIndex> {
           showDialog(
             context: context,
             builder: (bc) {
-              return createAddLib();
+              return createAddLib(appDataSource);
             },
           );
         },
@@ -367,17 +438,17 @@ class LibIndexState extends SecurityState<LibIndex> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<AppDataSource>(
       future: AppDataSource.getOnlyExist.initState,
-      builder: (bc, nowState) {
-        if (nowState.hasError) {
+      builder: (bc, futureState) {
+        if (futureState.hasError) {
           return Center(
-            child: Text(nowState.error.toString()),
+            child: Text(futureState.error.toString()),
           );
         }
-        switch (nowState.connectionState) {
+        switch (futureState.connectionState) {
           case ConnectionState.done:
-            return showMainView();
+            return showMainView(futureState.data!);
           default:
             return Center(
               child: CircularProgressIndicator(),

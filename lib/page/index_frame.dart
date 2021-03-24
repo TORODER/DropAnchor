@@ -6,7 +6,7 @@ import 'show_mark_down.dart';
 
 class IndexFrame extends StatefulWidget {
   final List<Widget> showPageList = [
-    ShowMarkDown(),
+    ShowMarkdown(),
     LibIndex(),
     Setting(),
   ];

@@ -4,35 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:drop_anchor/model/index_source.dart';
 import 'package:provider/provider.dart';
 
-IndexSource goInPath(List<String> startP, IndexSource rootSource) {
-  final goPathList = startP;
-  var nowNode = rootSource;
-  if (goPathList.last == '..') {
-    goPathList.removeLast();
-    goPathList.removeLast();
-  }
-  for (var i = 0; i < goPathList.length; i++) {
-    for (var ii = 0; ii < nowNode.child.length; ii++) {
-      if (nowNode.child[ii].name == goPathList[i]) {
-        nowNode = nowNode.child[ii];
-        break;
-      }
-      if (ii == nowNode.child.length) {
-        print(
-          'no find ${goPathList.join('/')}\nnow name ${goPathList.sublist(0, i).join('/')}',
-        );
-        return nowNode;
-      }
-    }
-  }
-  return nowNode;
-}
-
 FreeExpansionPanel indexSourceCreateView(IndexSource indexSource) {
   switch (indexSource.type) {
+    //DIR
     case 0:
       return FreeExpansionPanel(
-        backgroundColor: Color.fromRGBO(248, 248, 248, 0.6),
         canTapOnHeader: true,
         openStateIcon: Container(),
         closeStateIcon: Container(),
@@ -51,27 +27,54 @@ FreeExpansionPanel indexSourceCreateView(IndexSource indexSource) {
             indexSource.name,
             style: TextStyle(fontSize: 16),
           ),
-          trailing: SizedBox(
-            child: indexSourceTypeLogo(indexSource.type),
+          leading: SizedBox(
+            child: indexSourceTypeLogo(indexSource.type,
+                typeState: indexSource.isOpenChildList ? 1 : 0),
             width: 35,
           ),
         ),
       );
+    //FILE
     case 1:
     default:
       return FreeExpansionPanel(
-        backgroundColor: Color.fromRGBO(248, 248, 248, 0.6),
         canTapOnHeader: true,
         openStateIcon: Container(),
         closeStateIcon: Container(),
-        headerBuilder: (bc, openState) => ListTile(
-          title: Text(
-            indexSource.name,
-            style: TextStyle(fontSize: 16),
+        headerBuilder: (bc, openState) => PopupMenuButton<Function>(
+          onSelected: (selectRunFunc){
+            selectRunFunc();
+          },
+          itemBuilder: (bc) => [
+            PopupMenuItem(
+              child: Text("Show"),
+              value: () {
+                AppDataSource.getOnlyExist.activationIndexSourceManage.setShowIndexSource=indexSource;
+                AppDataSource.getOnlyExist.notifyListeners();
+              },
+            ),
+            PopupMenuItem(
+              child: Text("Edit"),
+              value: () {},
+            ),
+            PopupMenuItem(
+              child: Text("Download"),
+              value: () {},
+            ),
+          ],
+          child: ListTile(
+            title: Text(
+              indexSource.name,
+              style: TextStyle(fontSize: 16),
+            ),
+            leading: SizedBox(
+              child: indexSourceTypeLogo(indexSource.type),
+              width: 35,
+            ),
           ),
-          trailing: SizedBox(
-            child: indexSourceTypeLogo(indexSource.type),
-            width: 35,
+          offset: Offset(
+            0,
+            40,
           ),
         ),
         body: Container(),
@@ -89,7 +92,6 @@ Widget createLibChild(List<IndexSource> childData) {
           AppDataSource.getOnlyExist.notifyListeners();
         },
         expandedHeaderPadding: EdgeInsets.all(0),
-        // physics: BouncingScrollPhysics(),
         children: childData.map(indexSourceCreateView).toList(),
       )
     ],
@@ -107,10 +109,20 @@ class BookIndex extends StatelessWidget {
       ],
       child: StatefulBuilder(builder: (bc, ns) {
         var rootChild = <IndexSource>[];
-        if (bc.watch<AppDataSource>().selectIndexSourceManage.nowIndexSource != null) {
-          rootChild.addAll(bc.watch<AppDataSource>().selectIndexSourceManage.nowIndexSource!.child);
+        if (bc
+                .watch<AppDataSource>()
+                .activationIndexSourceManage
+                .nowIndexSource !=
+            null) {
+          rootChild.addAll(bc
+              .watch<AppDataSource>()
+              .activationIndexSourceManage
+              .nowIndexSource!
+              .child);
         }
-        return Column(
+        return ListView(
+          physics: BouncingScrollPhysics(),
+          shrinkWrap: true,
           children: [
             SizedBox(
               height: 10,

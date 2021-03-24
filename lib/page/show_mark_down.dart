@@ -1,21 +1,21 @@
+import 'package:drop_anchor/error/api_error.dart';
+import 'package:drop_anchor/model/index_source.dart';
+import 'package:drop_anchor/model/remote_data_source.dart';
+import 'package:drop_anchor/model/server_source.dart';
+import 'package:drop_anchor/state/app.dart';
 import 'package:drop_anchor/tool/security_set_state.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../mddata.dart';
 import 'book_index.dart';
 import 'edit.dart';
 
-class ShowMarkDown extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return _ShowMarkDownState();
-  }
-}
-
-class _ShowMarkDownState extends SecurityState<ShowMarkDown> {
+class ShowMarkdown extends StatelessWidget {
   Widget createDrawer() {
     return Container(
       color: Colors.white,
@@ -25,11 +25,7 @@ class _ShowMarkDownState extends SecurityState<ShowMarkDown> {
         child: Column(
           children: [
             Expanded(
-              child: Column(
-                children: [
-                  BookIndex(),
-                ],
-              ),
+              child: BookIndex(),
             ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 3),
@@ -39,7 +35,7 @@ class _ShowMarkDownState extends SecurityState<ShowMarkDown> {
                   Row(
                     children: [
                       Text(
-                        "使用Lib: Name0",
+                        "Use Lib : ${AppDataSource.getOnlyExist.activationIndexSourceManage.serverSource?.name ?? ""}",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -60,48 +56,101 @@ class _ShowMarkDownState extends SecurityState<ShowMarkDown> {
     );
   }
 
+  Widget createMarkdownView(
+      ServerSource serverSource, IndexSource indexSource) {
+    return FutureBuilder(
+        future: Future<dynamic>(() async {
+          await AppDataSource.getOnlyExist.activationIndexSourceManage.activationLoad;
+          final remoteDataSource=RemoteDataSource.fromIndexSource(indexSource, fromServerSource: serverSource);
+          return await remoteDataSource.getState;
+        }),
+        builder: (bc, futureState) {
+          if(futureState.hasError){
+            print(futureState.error.toString());
+            return Text("${futureState.error}");
+          }
+          if(futureState.connectionState!=ConnectionState.done){
+            return Center(child: CircularProgressIndicator(),);
+          }
+          return Markdown(
+            data: String.fromCharCodes(futureState.data as Iterable<int>),
+            selectable: true,
+            physics: BouncingScrollPhysics(),
+            onTapLink: (text, href, title) {
+              if (href != null) {
+                launch(href);
+              }
+            },
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text('is MarkDown Title'),
-        actions: [
-          IconButton(
-            iconSize: 28,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (bc) => Edit(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: AppDataSource.getOnlyExist),
+      ],
+      child: SecurityStatefulBuilder(
+        builder: (bc, securityNewState) => Scaffold(
+          body: FutureBuilder(
+            future: AppDataSource.getOnlyExist.initState,
+            builder: (bc, futureState) {
+              if (futureState.hasError) {
+                print(futureState.error);
+                return Text(futureState.error.toString());
+              }
+              if (futureState.connectionState != ConnectionState.done) {
+                return CircularProgressIndicator();
+              }
+              if (bc
+                      .watch<AppDataSource>()
+                      .activationIndexSourceManage
+                      .getShowIndexSource !=
+                  null) {
+
+                return Scaffold(
+                  appBar: AppBar(
+                    automaticallyImplyLeading: false,
+                    title: Text(
+                        '${bc.watch<AppDataSource>().activationIndexSourceManage.getShowIndexSource!.name}'),
+                    actions: [
+                      IconButton(
+                        iconSize: 28,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (bc) => Edit(),
+                            ),
+                          );
+                        },
+                        icon: Image.asset(
+                          "assets/edit-file.png",
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                    ],
+                  ),
+                  drawer: createDrawer(),
+                  drawerEdgeDragWidth: 250,
+                  body: createMarkdownView(
+                    bc.watch<AppDataSource>().activationIndexSourceManage.serverSource!,
+                    bc.watch<AppDataSource>().activationIndexSourceManage.getShowIndexSource!,
                 ),
-              );
+                );
+              } else {
+                return Scaffold(
+                  body: Center(
+                    child: Text("No Show Doc !"),
+                  ),
+                );
+              }
             },
-            icon: Image.asset(
-              "assets/edit-file.png",
-            ),
           ),
-          SizedBox(
-            width: 10,
-          ),
-        ],
-      ),
-      drawer: createDrawer(),
-      drawerEdgeDragWidth: 250,
-      body: Markdown(
-        data: v1mdstr,
-        selectable: true,
-        physics: BouncingScrollPhysics(),
-        onTapLink: (text, href, title) {
-          if (href != null) {
-            launch(href);
-          }
-          print([
-            text,
-            href ?? null,
-            title,
-          ]);
-        },
+        ),
       ),
     );
   }

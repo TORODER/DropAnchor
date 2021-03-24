@@ -22,7 +22,9 @@ class SettingState extends SecurityState<Setting> {
           ElevatedButton(
               onPressed: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (bc) => TestPage()));
+                  context,
+                  MaterialPageRoute(builder: (bc) => TestPage()),
+                );
               },
               child: Text("进入接口测试"))
         ],

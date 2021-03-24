@@ -19,5 +19,4 @@ class ServerSource implements Token {
   }
   String getUrl()=> "http://$source:$port";
 
-
 }

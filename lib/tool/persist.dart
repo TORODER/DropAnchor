@@ -27,6 +27,15 @@ class Persist {
     return persistDir.path;
   }
 
+  static Future<PersistData> delPersist(String persistName) async {
+    final persistDirPath = await getPersistDir();
+    final usePersistFile=File(path.join(persistDirPath,persistName));
+    if(await usePersistFile.exists()){
+      await usePersistFile.delete();
+    }
+    return PersistData(usePersistFile);
+  }
+
   static Future<PersistData> usePersist(String persistName,String initData) async {
     final persistDirPath = await getPersistDir();
     final usePersistFile=File(path.join(persistDirPath,persistName));
