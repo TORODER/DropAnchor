@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:drop_anchor/error/api_error.dart';
+import 'package:drop_anchor/model/file_type.dart';
 import 'package:drop_anchor/model/index_source.dart';
 import 'package:drop_anchor/model/remote_data_source.dart';
 import 'package:drop_anchor/model/server_source.dart';
@@ -56,24 +59,13 @@ class ShowMarkdown extends StatelessWidget {
     );
   }
 
-  Widget createMarkdownView(
-      ServerSource serverSource, IndexSource indexSource) {
-    return FutureBuilder(
-        future: Future<dynamic>(() async {
-          await AppDataSource.getOnlyExist.activationIndexSourceManage.activationLoad;
-          final remoteDataSource=RemoteDataSource.fromIndexSource(indexSource, fromServerSource: serverSource);
-          return await remoteDataSource.getState;
-        }),
-        builder: (bc, futureState) {
-          if(futureState.hasError){
-            print(futureState.error.toString());
-            return Text("${futureState.error}");
-          }
-          if(futureState.connectionState!=ConnectionState.done){
-            return Center(child: CircularProgressIndicator(),);
-          }
+  Widget createView(Iterable<int> data, int fileType) {
+    switch (fileType) {
+      case FileType.MARKDOWN:
+        {
           return Markdown(
-            data: String.fromCharCodes(futureState.data as Iterable<int>),
+            padding: EdgeInsets.all(14),
+            data: utf8.decode(data.toList()),
             selectable: true,
             physics: BouncingScrollPhysics(),
             onTapLink: (text, href, title) {
@@ -82,7 +74,49 @@ class ShowMarkdown extends StatelessWidget {
               }
             },
           );
-        });
+        }
+      case FileType.UNDEFINITION:
+      case FileType.TEXT:
+      default:
+        return ListView(
+          children: [
+            Container(
+              child: Text(utf8.decode(data.toList())),
+              padding: EdgeInsets.all(14),
+            ),
+          ],
+        );
+    }
+  }
+
+  Widget createMarkdownView(
+      ServerSource serverSource, IndexSource indexSource) {
+    return FutureBuilder(
+      future: Future<dynamic>(() async {
+        await AppDataSource
+            .getOnlyExist.activationIndexSourceManage.activationLoad;
+        final remoteDataSource = RemoteDataSource.fromIndexSource(
+          indexSource,
+          fromServerSource: serverSource,
+        );
+        return await remoteDataSource.getState;
+      }),
+      builder: (bc, futureState) {
+        if (futureState.hasError) {
+          print(futureState.error.toString());
+          return Text("${futureState.error}");
+        }
+        if (futureState.connectionState != ConnectionState.done) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return createView(
+          futureState.data as Iterable<int>,
+          indexSource.fileType,
+        );
+      },
+    );
   }
 
   @override
@@ -108,7 +142,6 @@ class ShowMarkdown extends StatelessWidget {
                       .activationIndexSourceManage
                       .getShowIndexSource !=
                   null) {
-
                 return Scaffold(
                   appBar: AppBar(
                     automaticallyImplyLeading: false,
@@ -121,7 +154,16 @@ class ShowMarkdown extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (bc) => Edit(),
+                              builder: (router_bc) => Edit(
+                                fromIndexSource: bc
+                                    .read<AppDataSource>()
+                                    .activationIndexSourceManage
+                                    .getShowIndexSource!,
+                                fromServerSource: bc
+                                    .read<AppDataSource>()
+                                    .activationIndexSourceManage
+                                    .serverSource!,
+                              ),
                             ),
                           );
                         },
@@ -137,9 +179,15 @@ class ShowMarkdown extends StatelessWidget {
                   drawer: createDrawer(),
                   drawerEdgeDragWidth: 250,
                   body: createMarkdownView(
-                    bc.watch<AppDataSource>().activationIndexSourceManage.serverSource!,
-                    bc.watch<AppDataSource>().activationIndexSourceManage.getShowIndexSource!,
-                ),
+                    bc
+                        .watch<AppDataSource>()
+                        .activationIndexSourceManage
+                        .serverSource!,
+                    bc
+                        .watch<AppDataSource>()
+                        .activationIndexSourceManage
+                        .getShowIndexSource!,
+                  ),
                 );
               } else {
                 return Scaffold(

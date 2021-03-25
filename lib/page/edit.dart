@@ -1,5 +1,11 @@
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:drop_anchor/model/index_source.dart';
+import 'package:drop_anchor/model/remote_data_source.dart';
+import 'package:drop_anchor/model/server_source.dart';
+import 'package:drop_anchor/page/preview.dart';
+import 'package:drop_anchor/tool/security_set_state.dart';
 import 'package:drop_anchor/widget/textField/free_text_field.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -7,153 +13,205 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class EditState with ChangeNotifier, DiagnosticableTreeMixin {
-  late TextEditingController textEditingController;
+  late TextEditingController textEditingControllerContent;
+  late TextEditingController textEditingControllerTitle;
+  late String editDocName;
 
-  EditState() {
-    textEditingController = TextEditingController();
+  EditState({required String name, required String content}) {
+    textEditingControllerContent = TextEditingController();
+    textEditingControllerTitle = TextEditingController();
+    textEditingControllerContent.text = content;
+    textEditingControllerTitle.text = name;
   }
 }
 
 class Edit extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
+  IndexSource fromIndexSource;
+
+  ServerSource fromServerSource;
+
+  Edit({required this.fromIndexSource, required this.fromServerSource});
+
+  bool preview = false;
+
+  Widget createEditBody(Iterable<int> data) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (bc) => EditState())],
-      child: StatefulBuilder(
+      providers: [
+        ChangeNotifierProvider(
+          create: (bc) => EditState(
+            name: fromIndexSource.name,
+            content: utf8.decode(List<int>.from(data)),
+          ),
+        )
+      ],
+      child: SecurityStatefulBuilder(
         builder: (bc, ns) => Scaffold(
-          body: SafeArea(
-            child: Stack(
-              children: [
-                Column(
-                  children: [
-                    AppBar(
-                      title: SizedBox(
-                        height: 30,
-                        child: ListView(
-                          shrinkWrap: true,
-                          children: [Text("123123")],
-                          scrollDirection: Axis.horizontal,
+          body:  !preview
+              ? Stack(
+            children: [
+              Column(
+                children: [
+                  AppBar(
+                    title: SizedBox(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
                         ),
-                      ),
-                      actions: [
-                        Column(
-                          children: [
-                            createOperationMenu(
-                                controller:
-                                    bc.read<EditState>().textEditingController),
-                          ],
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        scrollPadding: EdgeInsets.fromLTRB(
+                          8,
+                          4,
+                          0,
+                          12,
                         ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                      ],
-                    ),
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        child: FreeTextField(
-                          scrollPhysics: BouncingScrollPhysics(),
-                          decoration: InputDecoration(border: InputBorder.none),
-                          controller:
-                              bc.read<EditState>().textEditingController,
-                          maxLines: null,
-                        ),
+                        controller: bc
+                            .read<EditState>()
+                            .textEditingControllerTitle,
                       ),
                     ),
-                  ],
-                ),
-                Align(
-                  child: Container(
-                    margin: EdgeInsets.all(8),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black38,
-                          offset: Offset(0, 1),
-                          blurRadius: 1,
-                        ),
-                      ],
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(
-                        5,
-                      ),
-                    ),
-                    child: FittedBox(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                    actions: [
+                      Column(
                         children: [
-                          ..."#<>\`[]|\\|{}-".split("").map(
-                                (e) => Container(
-                                  width: 30,
-                                  height: 30,
-                                  child: Material(
-                                    child: IconButton(
-                                      iconSize: 10,
-                                      padding: EdgeInsets.all(0),
-                                      icon: FittedBox(
-                                        child: Text(
-                                          e,
-                                          style: TextStyle(
-                                            fontSize: 24,
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        final textEditing = bc
-                                                .read<EditState>()
-                                                .textEditingController;
-                                        final startIndex = max(
-                                          min(
-                                              textEditing.selection.baseOffset,
-                                              textEditing
-                                                  .selection.extentOffset),
-                                          0,
-                                        );
-                                        final endIndex = max(
-                                          max(
-                                              textEditing.selection.baseOffset,
-                                              textEditing
-                                                  .selection.extentOffset),
-                                          0,
-                                        );
-                                        final contentList =
-                                            textEditing.text.split("");
-                                        final startString =
-                                            contentList.sublist(0, startIndex);
-                                        final endString =
-                                            contentList.sublist(endIndex);
-                                        final resString = [
-                                          ...startString,
-                                          ...e.split(""),
-                                          ...endString
-                                        ].join("");
-                                        textEditing.text = resString;
-                                        textEditing.selection = TextSelection(
-                                          baseOffset: startIndex + e.length,
-                                          extentOffset: startIndex + e.length,
-                                        );
-                                        bc.read<EditState>().notifyListeners();
-                                      },
-                                    ),
-                                  ),
-                                  padding: EdgeInsets.all(2),
-                                ),
-                              ),
+                          createOperationMenu(
+                              controller: bc
+                                  .read<EditState>()
+                                  .textEditingControllerContent),
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: Scrollbar(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 4,
+                            ),
+                            child: TextField(
+                              onChanged: (v) {},
+                              scrollPhysics:
+                              const BouncingScrollPhysics(),
+                              decoration: InputDecoration(
+                                  border: InputBorder.none),
+                              controller: bc
+                                  .read<EditState>()
+                                  .textEditingControllerContent,
+                              maxLines: null,
+                            ),
+                          )
                         ],
                       ),
                     ),
                   ),
-                  alignment: Alignment.bottomCenter,
-                )
-              ],
+                ],
+              ),
+            ],
+          )
+              : PreView(
+              bc.read<EditState>().textEditingControllerContent.text,
+              fileType: fromIndexSource.fileType),
+          bottomNavigationBar: Container(
+            constraints: BoxConstraints(maxHeight: 35,maxWidth: double.infinity),
+            margin: const EdgeInsets.symmetric(horizontal: 2,vertical: 2),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(
+                0,
+              ),
+            ),
+            child: FittedBox(
+              child: Row(
+                children: [
+                  ..."#<>\`[]|\\|{}-".split("").map(
+                        (e) => Container(
+
+                      height: 32,
+                      child: Material(
+                        color: Colors.white,
+                        child: IconButton(
+                          color: Colors.white,
+                          padding: EdgeInsets.all(2),
+                          icon: FittedBox(
+                            child: Text(
+                              e,
+                              style: TextStyle(
+                                fontSize: 26,
+                              ),
+                            ),
+                          ),
+                          onPressed: () {
+                            final textEditing = bc
+                                .read<EditState>()
+                                .textEditingControllerContent;
+                            final startIndex = max(
+                              min(
+                                  textEditing
+                                      .selection.baseOffset,
+                                  textEditing.selection
+                                      .extentOffset),
+                              0,
+                            );
+                            final endIndex = max(
+                              max(
+                                  textEditing
+                                      .selection.baseOffset,
+                                  textEditing.selection
+                                      .extentOffset),
+                              0,
+                            );
+                            final contentList =
+                            textEditing.text.split("");
+                            final startString = contentList
+                                .sublist(0, startIndex);
+                            final endString =
+                            contentList.sublist(endIndex);
+                            final resString = [
+                              ...startString,
+                              ...e.split(""),
+                              ...endString
+                            ].join("");
+                            textEditing.text = resString;
+                            textEditing.selection =
+                                TextSelection(
+                                  baseOffset:
+                                  startIndex + e.length,
+                                  extentOffset:
+                                  startIndex + e.length,
+                                );
+                            bc
+                                .read<EditState>()
+                                .notifyListeners();
+                          },
+                        ),
+                      ),
+                      padding: EdgeInsets.all(2),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+
+            onPressed: () {
+              preview = !preview;
+              ns(() => null);
+            },
+            backgroundColor: Colors.white,
+            child: Container(
+              child: preview
+                  ? Image.asset("assets/pen.png")
+                  : Image.asset("assets/preview.png"),
+              padding: EdgeInsets.all(12),
             ),
           ),
         ),
@@ -161,11 +219,33 @@ class Edit extends StatelessWidget {
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FutureBuilder(future: Future(() async {
+        final remoteDataSource = RemoteDataSource.fromIndexSource(
+            fromIndexSource,
+            fromServerSource: fromServerSource);
+        return await remoteDataSource.getState;
+      }), builder: (bc, futureState) {
+        if (futureState.hasError) {
+          print("${futureState.error}");
+        }
+        if (futureState.connectionState != ConnectionState.done) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return createEditBody(futureState.data as Iterable<int>);
+      }),
+    );
+  }
+
   PopupMenuButton<Function> createOperationMenu(
       {required TextEditingController controller}) {
     return PopupMenuButton<Function>(
-      offset: Offset(-5, 15),
-      padding: EdgeInsets.all(5),
+      offset: const Offset(-5, 15),
+      padding: const EdgeInsets.all(5),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(
           1,
@@ -182,7 +262,7 @@ class Edit extends StatelessWidget {
                   width: 18,
                   height: 18,
                 ),
-                padding: EdgeInsets.fromLTRB(
+                padding: const EdgeInsets.fromLTRB(
                   0,
                   0,
                   10,
@@ -201,7 +281,7 @@ class Edit extends StatelessWidget {
                   width: 18,
                   height: 18,
                 ),
-                padding: EdgeInsets.fromLTRB(
+                padding: const EdgeInsets.fromLTRB(
                   0,
                   0,
                   10,
@@ -220,7 +300,7 @@ class Edit extends StatelessWidget {
                   width: 24,
                   height: 24,
                 ),
-                padding: EdgeInsets.fromLTRB(
+                padding: const EdgeInsets.fromLTRB(
                   0,
                   0,
                   10,
@@ -244,10 +324,10 @@ class Edit extends StatelessWidget {
                           e["content"] as Widget,
                         ],
                       ),
-                      constraints: BoxConstraints(
+                      constraints: const BoxConstraints(
                         minWidth: 100,
                       ),
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         vertical: 7,
                       ),
                     ),

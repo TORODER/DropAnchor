@@ -1027,6 +1027,7 @@ class FreeEditableTextState extends EditableTextState {
         restorationId: widget.restorationId,
         viewportBuilder: (context, offset) {
           return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Column(
                 children: _value.text

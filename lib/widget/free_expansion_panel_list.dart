@@ -291,7 +291,7 @@ class _FreeExpansionPanelListState extends State<FreeExpansionPanelList> {
               margin: _isChildExpanded(index)
                   ? widget.expandedHeaderPadding
                   : EdgeInsets.zero,
-              child: ConstrainedBox(
+              child:  ConstrainedBox(
                 constraints: const BoxConstraints(
                     minHeight: _kPanelHeaderCollapsedHeight),
                 child: headerWidget,

@@ -138,8 +138,8 @@ class LibIndexState extends SecurityState<LibIndex> {
                                                     0.6,
                                                 height: MediaQuery.of(context)
                                                         .size
-                                                        .width *
-                                                    0.6,
+                                                        .height *
+                                                    0.8,
                                                 child: Container(
                                                   child: BookIndex(),
                                                 ),
@@ -170,7 +170,7 @@ class LibIndexState extends SecurityState<LibIndex> {
                                           null
                                   ? Container(
                                       margin: EdgeInsets.fromLTRB(
-                                        4,
+                                        8,
                                         0,
                                         0,
                                         0,
@@ -332,7 +332,7 @@ class LibIndexState extends SecurityState<LibIndex> {
                         child: Row(
                           children: [
                             Text(e["Label"] as String),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             Expanded(
@@ -348,12 +348,6 @@ class LibIndexState extends SecurityState<LibIndex> {
                                   onChanged:
                                       e["OnChanged"] as ValueChanged<String>,
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.fromLTRB(
-                                      5,
-                                      0,
-                                      0,
-                                      20,
-                                    ),
                                     border: InputBorder.none,
                                     filled: true,
                                   ),
@@ -413,7 +407,7 @@ class LibIndexState extends SecurityState<LibIndex> {
       ),
       body: ListView(
         physics: BouncingScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(12, 10, 12, 0),
+        padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
         children: [
           ...appDataSource.manageRemoteServer.listServer
               .map(
@@ -431,7 +425,7 @@ class LibIndexState extends SecurityState<LibIndex> {
             },
           );
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -450,7 +444,7 @@ class LibIndexState extends SecurityState<LibIndex> {
           case ConnectionState.done:
             return showMainView(futureState.data!);
           default:
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
         }

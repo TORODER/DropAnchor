@@ -3,8 +3,6 @@ import 'dart:convert';
 
 import 'package:drop_anchor/api/server_public_data.dart';
 import 'package:drop_anchor/api/state_code.dart';
-import 'package:drop_anchor/mddata.dart';
-import 'package:drop_anchor/page/book_index.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:drop_anchor/model/index_source.dart';

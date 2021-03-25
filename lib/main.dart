@@ -1,8 +1,10 @@
+import 'package:drop_anchor/state/device_local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:drop_anchor/page/index_frame.dart';
 
 void main() {
+  DeviceLocalStorage();
   runApp(
     AppFrame(),
   );
@@ -35,7 +37,8 @@ class AppFrame extends StatelessWidget {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: Brightness.dark),
+          systemNavigationBarIconBrightness: Brightness.dark,
+      ),
     );
 
     return MaterialApp(
