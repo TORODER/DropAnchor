@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-
-class FsFileType{
-  static const int DIR=0;
-  static const int FILE=1;
+class FsFileType {
+  static const int DIR = 0;
+  static const int FILE = 1;
 }
-
 
 class IndexSource {
   int type;
@@ -19,8 +17,15 @@ class IndexSource {
   IndexSource(this.type, this.name, dynamic child,
       {required this.parent, required this.fileType}) {
     final listChild = List<Map<String, dynamic>>.from(child ?? [])
-        .map((e) => IndexSource(e["type"], e["name"], e["child"],
-            parent: this, fileType: e["fileType"]))
+        .map(
+          (e) => IndexSource(
+            e["type"],
+            e["name"],
+            e["child"],
+            parent: this,
+            fileType: e["fileType"],
+          ),
+        )
         .toList();
     this.child = listChild;
   }
@@ -41,8 +46,12 @@ class IndexSource {
       {required IndexSource? parent}) {
     final indexMap = Map<String, dynamic>.from(indexRaw);
     return IndexSource(
-        indexMap["type"], indexMap["name"], indexMap["child"] ?? [],
-        parent: parent, fileType: indexMap["fileType"]);
+      indexMap["type"],
+      indexMap["name"],
+      indexMap["child"] ?? [],
+      parent: parent,
+      fileType: indexMap["fileType"],
+    );
   }
 }
 
@@ -52,7 +61,7 @@ Widget indexSourceTypeLogo(int type, {int typeState = 0}) {
       {
         switch (typeState) {
           case 1:
-            return  Image.asset("assets/open_folder.png");
+            return Image.asset("assets/open_folder.png");
           case 0:
           default:
             return Image.asset("assets/folder.png");
@@ -61,5 +70,6 @@ Widget indexSourceTypeLogo(int type, {int typeState = 0}) {
     case FsFileType.FILE:
       return Image.asset("assets/bookred.png");
   }
+  TextField;
   return const Text("NullType");
 }

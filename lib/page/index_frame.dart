@@ -9,8 +9,8 @@ class IndexFrame extends StatefulWidget {
   final List<Widget> showPageList = [
     ShowMarkdown(),
     LibIndex(),
-    Setting(),
     DeviceLocalStorageTree(),
+    Setting(),
   ];
 
   IndexFrame();
@@ -27,6 +27,7 @@ class IndexFrameState extends SecurityState<IndexFrame>
 
   IndexFrameState() {
     tabController = TabController(length: 4, vsync: this);
+
   }
 
   @override
@@ -76,21 +77,6 @@ class IndexFrameState extends SecurityState<IndexFrame>
           Column(
             children: [
               Image.asset(
-                "./assets/setting.png",
-                width: 36,
-              ),
-              const SizedBox(
-                height: 1,
-              ),
-              FittedBox(
-                child: const Text("Setting"),
-              ),
-            ],
-            mainAxisSize: MainAxisSize.min,
-          ),
-          Column(
-            children: [
-              Image.asset(
                 "./assets/pc.png",
                 width: 36,
               ),
@@ -104,7 +90,22 @@ class IndexFrameState extends SecurityState<IndexFrame>
               ),
             ],
             mainAxisSize: MainAxisSize.min,
-          )
+          ),
+          Column(
+            children: [
+              Image.asset(
+                "./assets/setting.png",
+                width: 36,
+              ),
+              const SizedBox(
+                height: 1,
+              ),
+              FittedBox(
+                child: const Text("Setting"),
+              ),
+            ],
+            mainAxisSize: MainAxisSize.min,
+          ),
         ],
       ),
     );

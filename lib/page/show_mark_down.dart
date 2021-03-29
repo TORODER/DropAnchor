@@ -5,6 +5,7 @@ import 'package:drop_anchor/model/file_type.dart';
 import 'package:drop_anchor/model/index_source.dart';
 import 'package:drop_anchor/model/remote_data_source.dart';
 import 'package:drop_anchor/model/server_source.dart';
+import 'package:drop_anchor/page/preview.dart';
 import 'package:drop_anchor/state/app.dart';
 import 'package:drop_anchor/tool/security_set_state.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,7 +15,6 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../mddata.dart';
 import 'book_index.dart';
 import 'edit.dart';
 
@@ -59,47 +59,15 @@ class ShowMarkdown extends StatelessWidget {
     );
   }
 
-  Widget createView(Iterable<int> data, int fileType) {
-    switch (fileType) {
-      case FileType.MARKDOWN:
-        {
-          return Markdown(
-            padding: EdgeInsets.all(14),
-            data: utf8.decode(data.toList()),
-            selectable: true,
-            physics: BouncingScrollPhysics(),
-            onTapLink: (text, href, title) {
-              if (href != null) {
-                launch(href);
-              }
-            },
-          );
-        }
-      case FileType.UNDEFINITION:
-      case FileType.TEXT:
-      default:
-        return ListView(
-          children: [
-            Container(
-              child: Text(utf8.decode(data.toList())),
-              padding: EdgeInsets.all(14),
-            ),
-          ],
-        );
-    }
-  }
 
   Widget createMarkdownView(
-      ServerSource serverSource, IndexSource indexSource) {
+      ServerSourceBase serverSource, IndexSource indexSource) {
     return FutureBuilder(
       future: Future<dynamic>(() async {
         await AppDataSource
             .getOnlyExist.activationIndexSourceManage.activationLoad;
-        final remoteDataSource = RemoteDataSource.fromIndexSource(
-          indexSource,
-          fromServerSource: serverSource,
-        );
-        return await remoteDataSource.getState;
+        final remoteDataSource = serverSource.getFileContent(fromIndexSource: indexSource);
+        return await remoteDataSource;
       }),
       builder: (bc, futureState) {
         if (futureState.hasError) {
@@ -111,9 +79,9 @@ class ShowMarkdown extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }
-        return createView(
+        return PreView(
           futureState.data as Iterable<int>,
-          indexSource.fileType,
+          fileType:indexSource.fileType,
         );
       },
     );

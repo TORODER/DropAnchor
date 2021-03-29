@@ -28,7 +28,7 @@ class EditState with ChangeNotifier, DiagnosticableTreeMixin {
 class Edit extends StatelessWidget {
   IndexSource fromIndexSource;
 
-  ServerSource fromServerSource;
+  ServerSourceBase fromServerSource;
 
   Edit({required this.fromIndexSource, required this.fromServerSource});
 
@@ -46,79 +46,79 @@ class Edit extends StatelessWidget {
       ],
       child: SecurityStatefulBuilder(
         builder: (bc, ns) => Scaffold(
-          body:  !preview
+          body: !preview
               ? Stack(
-            children: [
-              Column(
-                children: [
-                  AppBar(
-                    title: SizedBox(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                        ),
-                        scrollPadding: EdgeInsets.fromLTRB(
-                          8,
-                          4,
-                          0,
-                          12,
-                        ),
-                        controller: bc
-                            .read<EditState>()
-                            .textEditingControllerTitle,
-                      ),
-                    ),
-                    actions: [
-                      Column(
-                        children: [
-                          createOperationMenu(
-                              controller: bc
-                                  .read<EditState>()
-                                  .textEditingControllerContent),
-                        ],
-                        mainAxisAlignment: MainAxisAlignment.center,
-                      ),
-                      SizedBox(
-                        width: 15,
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Scrollbar(
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 4,
-                            ),
+                  children: [
+                    Column(
+                      children: [
+                        AppBar(
+                          title: SizedBox(
                             child: TextField(
-                              onChanged: (v) {},
-                              scrollPhysics:
-                              const BouncingScrollPhysics(),
                               decoration: InputDecoration(
-                                  border: InputBorder.none),
+                                border: InputBorder.none,
+                              ),
+                              scrollPadding: EdgeInsets.fromLTRB(
+                                8,
+                                4,
+                                0,
+                                12,
+                              ),
                               controller: bc
                                   .read<EditState>()
-                                  .textEditingControllerContent,
-                              maxLines: null,
+                                  .textEditingControllerTitle,
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                          actions: [
+                            Column(
+                              children: [
+                                createOperationMenu(
+                                    controller: bc
+                                        .read<EditState>()
+                                        .textEditingControllerContent),
+                              ],
+                              mainAxisAlignment: MainAxisAlignment.center,
+                            ),
+                            const SizedBox(
+                              width: 15,
+                            ),
+                          ],
+                        ),
+                        Expanded(
+                          child: Scrollbar(
+                            child: ListView(
+                              shrinkWrap: true,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 4,
+                                  ),
+                                  child: TextField(
+                                    onChanged: (v) {},
+                                    scrollPhysics:
+                                        const BouncingScrollPhysics(),
+                                    decoration: const InputDecoration(
+                                        border: InputBorder.none),
+                                    controller: bc
+                                        .read<EditState>()
+                                        .textEditingControllerContent,
+                                    maxLines: null,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            ],
-          )
-              : PreView(
-              bc.read<EditState>().textEditingControllerContent.text,
-              fileType: fromIndexSource.fileType),
+                  ],
+                )
+              : PreView(bc.read<EditState>().textEditingControllerContent.text,
+                  fileType: fromIndexSource.fileType),
           bottomNavigationBar: Container(
-            constraints: BoxConstraints(maxHeight: 35,maxWidth: double.infinity),
-            margin: const EdgeInsets.symmetric(horizontal: 2,vertical: 2),
+            constraints:
+                const BoxConstraints(maxHeight: 35, maxWidth: double.infinity),
+            margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
             padding: const EdgeInsets.symmetric(
               horizontal: 8,
             ),
@@ -133,75 +133,60 @@ class Edit extends StatelessWidget {
                 children: [
                   ..."#<>\`[]|\\|{}-".split("").map(
                         (e) => Container(
-
-                      height: 32,
-                      child: Material(
-                        color: Colors.white,
-                        child: IconButton(
-                          color: Colors.white,
-                          padding: EdgeInsets.all(2),
-                          icon: FittedBox(
-                            child: Text(
-                              e,
-                              style: TextStyle(
-                                fontSize: 26,
+                          height: 32,
+                          child: Material(
+                            color: Colors.white,
+                            child: IconButton(
+                              color: Colors.white,
+                              padding: EdgeInsets.all(2),
+                              icon: FittedBox(
+                                child: Text(
+                                  e,
+                                  style: TextStyle(
+                                    fontSize: 26,
+                                  ),
+                                ),
                               ),
+                              onPressed: () {
+                                final textEditing = bc
+                                    .read<EditState>()
+                                    .textEditingControllerContent;
+                                final startIndex = max(
+                                  min(textEditing.selection.baseOffset,
+                                      textEditing.selection.extentOffset),
+                                  0,
+                                );
+                                final endIndex = max(
+                                  max(textEditing.selection.baseOffset,
+                                      textEditing.selection.extentOffset),
+                                  0,
+                                );
+                                final contentList = textEditing.text.split("");
+                                final startString =
+                                    contentList.sublist(0, startIndex);
+                                final endString = contentList.sublist(endIndex);
+                                final resString = [
+                                  ...startString,
+                                  ...e.split(""),
+                                  ...endString
+                                ].join("");
+                                textEditing.text = resString;
+                                textEditing.selection = TextSelection(
+                                  baseOffset: startIndex + e.length,
+                                  extentOffset: startIndex + e.length,
+                                );
+                                bc.read<EditState>().notifyListeners();
+                              },
                             ),
                           ),
-                          onPressed: () {
-                            final textEditing = bc
-                                .read<EditState>()
-                                .textEditingControllerContent;
-                            final startIndex = max(
-                              min(
-                                  textEditing
-                                      .selection.baseOffset,
-                                  textEditing.selection
-                                      .extentOffset),
-                              0,
-                            );
-                            final endIndex = max(
-                              max(
-                                  textEditing
-                                      .selection.baseOffset,
-                                  textEditing.selection
-                                      .extentOffset),
-                              0,
-                            );
-                            final contentList =
-                            textEditing.text.split("");
-                            final startString = contentList
-                                .sublist(0, startIndex);
-                            final endString =
-                            contentList.sublist(endIndex);
-                            final resString = [
-                              ...startString,
-                              ...e.split(""),
-                              ...endString
-                            ].join("");
-                            textEditing.text = resString;
-                            textEditing.selection =
-                                TextSelection(
-                                  baseOffset:
-                                  startIndex + e.length,
-                                  extentOffset:
-                                  startIndex + e.length,
-                                );
-                            bc
-                                .read<EditState>()
-                                .notifyListeners();
-                          },
+                          padding: EdgeInsets.all(2),
                         ),
                       ),
-                      padding: EdgeInsets.all(2),
-                    ),
-                  ),
                 ],
               ),
             ),
           ),
           floatingActionButton: FloatingActionButton(
-
             onPressed: () {
               preview = !preview;
               ns(() => null);
@@ -224,8 +209,9 @@ class Edit extends StatelessWidget {
     return Scaffold(
       body: FutureBuilder(future: Future(() async {
         final remoteDataSource = RemoteDataSource.fromIndexSource(
-            fromIndexSource,
-            fromServerSource: fromServerSource);
+          fromIndexSource,
+          fromServerSource: fromServerSource,
+        );
         return await remoteDataSource.getState;
       }), builder: (bc, futureState) {
         if (futureState.hasError) {

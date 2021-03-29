@@ -125,7 +125,8 @@ class LibIndexState extends SecurityState<LibIndex> {
                                   onPressed: () {
                                     setState(() => appDataSource
                                             .activationIndexSourceManage
-                                            .fromRemoteServer(sourceElem)
+                                            .fromRemoteServerReadIndexSource(
+                                                sourceElem)
                                             .then((value) {
                                           showDialog(
                                             context: context,

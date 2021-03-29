@@ -1088,13 +1088,6 @@ class _FreeTextFieldState extends State<FreeTextField>
         ),
       ),
     );
-
-    if (kIsWeb) {
-      return Shortcuts(
-        shortcuts: scrollShortcutOverrides,
-        child: child,
-      );
-    }
     return child;
   }
 }

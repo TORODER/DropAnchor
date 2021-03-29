@@ -1,4 +1,5 @@
 import 'package:drop_anchor/state/device_local_storage.dart';
+import 'package:drop_anchor/tool/file_suffix_analysis.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:drop_anchor/page/index_frame.dart';
@@ -34,6 +35,8 @@ class AppFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,

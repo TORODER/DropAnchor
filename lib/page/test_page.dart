@@ -12,7 +12,7 @@ class TestPage extends StatefulWidget {
 }
 
 class _TestPageState extends State<TestPage> {
-  ServerSource? activationServer;
+  ServerSourceBase? activationServer;
   _TestPageState():activationServer=null;
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class _TestPageState extends State<TestPage> {
         }
         return ListView(
           children: [
-            DropdownButton<ServerSource>(
+            DropdownButton<ServerSourceBase>(
               value:activationServer,
               items: AppDataSource.getOnlyExist.manageRemoteServer.listServer
                   .map(

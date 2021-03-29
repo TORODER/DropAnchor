@@ -11,7 +11,7 @@ import 'package:drop_anchor/tool/persist.dart';
 
 IndexSource deIndex(String pathStruct) {
   final deres = jsonDecode(pathStruct);
-  return IndexSource.helperCreate(deres,parent: null);
+  return IndexSource.helperCreate(deres, parent: null);
 }
 
 class _ManageRemoteServer {
@@ -43,7 +43,7 @@ class _ManageRemoteServer {
       });
   }
 
-  void addListServerCont(ServerSource serverSource) {
+  void addListServerCont(ServerSourceBase serverSource) {
     final createMap = <String, TextEditingController>{};
     final editNameCon = TextEditingController();
     createMap['editName'] = editNameCon;
@@ -57,7 +57,7 @@ class _ManageRemoteServer {
         .save(jsonEncode(listServer.map((e) => e.toMap()).toList()));
   }
 
-  Future deleteServer(ServerSource removeServerSource) async {
+  Future deleteServer(ServerSourceBase removeServerSource) async {
     await loadState;
     listServer.remove(removeServerSource);
     await saveServer();
@@ -73,23 +73,24 @@ class _ManageRemoteServer {
 }
 
 class _ActivationIndexSourceManage {
-  IndexSource? _nowIndexSource;
+  IndexSource? _rootIndexSource;
   IndexSource? _showIndexSource;
 
-  ServerSource? _serverSource;
+  ServerSourceBase? _serverSource;
   Future<bool>? activationLoad;
 
   _ActivationIndexSourceManage() {
-    _nowIndexSource = null;
+    _rootIndexSource = null;
   }
 
-  Future<bool> fromRemoteServer(ServerSource serverSource) {
+  Future<bool> fromRemoteServerReadIndexSource(ServerSourceBase serverSource) {
     _serverSource = serverSource;
     activationLoad = Future<bool>(() async {
       final resPack = await getServerPublicDataIndex(serverSource);
       switch (resPack.stateCode) {
         case StateCode.RES_OK:
-          _nowIndexSource = IndexSource.helperCreate(resPack.data,parent: null);
+          _rootIndexSource =
+              IndexSource.helperCreate(resPack.data, parent: null);
           return true;
         default:
           // throw error
@@ -99,17 +100,31 @@ class _ActivationIndexSourceManage {
     });
     return activationLoad ?? Future.value(false);
   }
-  ServerSource? get serverSource=>_serverSource;
+
+  Future<bool> fromLocalReadIndexSource(
+    ServerSourceBase serverSource, {
+    required IndexSource rootIndexSource,
+    required IndexSource showIndexSource,
+  }) {
+    _serverSource = serverSource;
+    _rootIndexSource = rootIndexSource;
+    _showIndexSource = showIndexSource;
+    activationLoad = Future.value(true);
+    final resFutureOver = Future.value(true);
+    return resFutureOver;
+  }
+
+  ServerSourceBase? get serverSource => _serverSource;
 
   IndexSource? get getShowIndexSource => _showIndexSource;
 
-  set setShowIndexSource(IndexSource showIndexSource){
-    if(_serverSource!=null){
-      _showIndexSource=showIndexSource;
+  set setShowIndexSource(IndexSource showIndexSource) {
+    if (_serverSource != null) {
+      _showIndexSource = showIndexSource;
     }
   }
 
-  IndexSource? get nowIndexSource => _nowIndexSource;
+  IndexSource? get rootIndexSource => _rootIndexSource;
 }
 
 class AppDataSource with ChangeNotifier, DiagnosticableTreeMixin {

@@ -2,7 +2,11 @@
 
 import 'package:drop_anchor/api/state_code.dart';
 
-abstract class ApiError implements Exception{
+import 'base_error.dart';
+
+
+
+abstract class ApiError implements BaseError{
   late int errorApiStateCode;
   late String errorMessage;
 
@@ -11,6 +15,7 @@ abstract class ApiError implements Exception{
     return super.toString();
   }
 }
+
 class ApiErrorBash implements ApiError{
   @override
   int errorApiStateCode;

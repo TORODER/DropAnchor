@@ -7,24 +7,41 @@ class DeviceLocalStorageTree extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-        future: DeviceLocalStorage.getOnlyElem.loadState,
-        builder: (BuildContext context, futureState) {
-          if (futureState.hasError) {
-            print(futureState.error);
-          }
-          if (futureState.connectionState != ConnectionState.done) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          return ListView(
-            children: [
-              BookIndex.createLibChild(
-                  DeviceLocalStorage.getOnlyElem.rootIndexSource!.child)
-            ],
-          );
-        },
+      appBar: AppBar(
+        title: const Text("Local"),
+      ),
+      body: Column(
+        children: [
+          const SizedBox(
+            height: 5,
+          ),
+          Expanded(
+            child: FutureBuilder(
+              future: DeviceLocalStorage.getOnlyElem.loadState,
+              builder: (context, futureState) {
+                if (futureState.hasError) {
+                  print(futureState.error);
+                }
+                if (futureState.connectionState != ConnectionState.done) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                return ListView(
+                  children: [
+                    BookIndex.createLibChild(
+                      DeviceLocalStorage.getOnlyElem.rootIndexSource!.child,
+                      rootIndexSource:
+                          DeviceLocalStorage.getOnlyElem.rootIndexSource,
+                      useServerSource:
+                          DeviceLocalStorage.getOnlyElem.serverSource,
+                    )
+                  ],
+                );
+              },
+            ),
+          )
+        ],
       ),
     );
   }
