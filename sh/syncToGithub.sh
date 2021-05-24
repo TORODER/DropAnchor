@@ -1,3 +1,5 @@
+http_proxy="http://127.0.0.1:7890"
+https_proxy="http://127.0.0.1:7890"
 flutter build windows
 mv build/windows/runner/Release ./build-windows
 git add .
