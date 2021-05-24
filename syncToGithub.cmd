@@ -1,1 +1,1 @@
-"C:\Program Files\Git\git-bash.exe" .\sh\syncToGithub.sh
+"C:\Program Files\Git\git-bash.exe" .\sh\syncToGithub.sh "."
