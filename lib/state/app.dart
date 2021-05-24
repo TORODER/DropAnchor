@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:drop_anchor/api/server_public_data.dart';
 import 'package:drop_anchor/api/state_code.dart';
+import 'package:drop_anchor/model/file_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:drop_anchor/model/index_source.dart';
@@ -89,8 +90,9 @@ class _ActivationIndexSourceManage {
       final resPack = await getServerPublicDataIndex(serverSource);
       switch (resPack.stateCode) {
         case StateCode.RES_OK:
-          _rootIndexSource =
-              IndexSource.helperCreate(resPack.data, parent: null);
+          _rootIndexSource = IndexSource(
+              FsFileType.DIR, "RemoteLibExport", resPack.data,
+              parent: null, fileType: FileType.UNDEFINITION);
           return true;
         default:
           // throw error

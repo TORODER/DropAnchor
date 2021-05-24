@@ -42,7 +42,6 @@ class RemoteDataSource {
       getState = Future<Iterable<int>>(() async {
         final targetPath = path.relative(path.join(
             fromServerSource.source, "./${fromIndexSource.getCompletePath()}"));
-
         final targetFile = File(targetPath);
         final targetFileStat = await targetFile.stat();
         if (targetFileStat.type == FileSystemEntityType.file) {

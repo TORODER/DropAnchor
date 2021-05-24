@@ -353,6 +353,7 @@ class LibIndexState extends SecurityState<LibIndex> {
                                   onChanged:
                                       e["OnChanged"] as ValueChanged<String>,
                                   decoration: InputDecoration(
+                                    isDense: true,
                                     border: InputBorder.none,
                                     filled: true,
                                   ),

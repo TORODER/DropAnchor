@@ -57,7 +57,7 @@ class IndexFrameState extends SecurityState<IndexFrame>
                         child: InkWell(
                           child: Center(
                             child: Container(
-                              padding: EdgeInsets.only(left: 10),
+                              padding: EdgeInsets.only(left: 20),
                               child: Text(
                                 e,
                                 style: TextStyle(
